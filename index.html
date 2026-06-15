@@ -60,8 +60,8 @@
 
         // --- DATA AWAL (MOCK DATA) ---
         const initialSettings = {
-            kepalaSekolah: "Selma Meila Puspita, S.Hum., M.Pd.",
-            nipKepsek: "-",
+            kepalaSekolah: "Ahmad Fauzi, S.Pd.I",
+            nipKepsek: "198001012005011001",
             tglRapor: "2026-06-20",
             tglTranskrip: "2026-06-25",
             tglSurat: "2026-06-15",
@@ -74,14 +74,14 @@
         };
 
         const initialClasses = [
-            { name: "1A", teacher: "Eka Farida, S.Pd." }, { name: "1B", teacher: "Nuraeni, S.Pd." },
-            { name: "2A", teacher: "Siti Nuraeni, S.Pd." }, { name: "2B", teacher: "Zulfa, S.Pd." },
-            { name: "3A", teacher: "Hilma, S.Pd" }, { name: "3B", teacher: "Isma Muna, S.Pd." },
-            { name: "4A", teacher: "Anita Syamsiyah, S.Hum." }, { name: "4B", teacher: "Isna, S.Pd." },
-            { name: "5A", teacher: "Kartika Dewi, S.Pd." }, { name: "5B", teacher: "Syamsul Kamil, S.Pd." },
-            { name: "6A", teacher: "Winda Wardiani, S.Pd." }, { name: "6B", teacher: "Khurin'in, S.Si." }
+            { name: "1A", teacher: "Ustadz Budi" }, { name: "1B", teacher: "Ustadzah Siti" },
+            { name: "2A", teacher: "Ustadz Andi" }, { name: "2B", teacher: "Ustadzah Rina" },
+            { name: "3A", teacher: "Ustadz Dedi" }, { name: "3B", teacher: "Ustadzah Eka" },
+            { name: "4A", teacher: "Ustadz Fajar" }, { name: "4B", teacher: "Ustadzah Gina" },
+            { name: "5A", teacher: "Ustadz Huda" }, { name: "5B", teacher: "Ustadzah Indah" },
+            { name: "6A", teacher: "Ustadz Jaka" }, { name: "6B", teacher: "Ustadzah Kiki" }
         ];
-        const initialYears = ["2019/2020", "2020/2021", "2021/2022", 2022/2023", "2023/2024", "2024/2025", "2025/2026"];
+        const initialYears = ["2022/2023", "2023/2024", "2024/2025", "2025/2026"];
 
         const initialStudents = [
             { id: 1, nis: "23001", nisn: "0151234567", name: "Budi Santoso", gender: "L", dob: "2015-05-12", pob: "Karawang", father: "Joko", mother: "Siti", class: "4A", status: "Aktif", year: "2025/2026" },
@@ -846,7 +846,7 @@
                                             <div className="text-center border-b-2 border-black pb-2 mb-4">
                                                 <h1 className="text-xl font-bold uppercase tracking-widest">Transkrip Nilai Akademik Siswa</h1>
                                                 <h2 className="text-lg font-bold">SDIT ANNIHAYAH</h2>
-                                                <p className="text-xs">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
+                                                <p className="text-xs">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat</p>
                                             </div>
 
                                             <div className="grid grid-cols-2 text-xs text-black mb-4 gap-y-1">
@@ -939,7 +939,7 @@
                             <div className="text-center border-b-4 border-black pb-4 mb-6">
                                 <h1 className="text-2xl font-bold uppercase">Laporan Hasil Belajar Siswa</h1>
                                 <h2 className="text-xl font-bold">SDIT ANNIHAYAH</h2>
-                                <p className="text-sm">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
+                                <p className="text-sm">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat</p>
                             </div>
                             
                             <div className="flex justify-between text-sm mb-6 font-semibold">
@@ -1128,9 +1128,8 @@
                                         <div className="text-center border-b-2 border-black pb-4 mb-6">
                                             <h1 className="text-xl font-bold uppercase tracking-widest">YAYASAN PENDIDIKAN ISLAM ANNIHAYAH</h1>
                                             <h2 className="text-2xl font-bold uppercase">SDIT ANNIHAYAH</h2>
-                                            <p className="text-xs">SK Ijin Operasional :503/4853/5/IPSS/X/DPMPTSP/2019 NPSN : 69993044</p>
-                                            <p className="text-xs">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
-                                            <p className="text-xs">E-mail : annihayah.sdit@gmail.com</p>
+                                            <p className="text-xs">Terakreditasi "A" - NPSN: 12345678</p>
+                                            <p className="text-xs">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat 41311</p>
                                         </div>
                                         
                                         <div className="flex justify-between items-start mb-8">
