@@ -1188,14 +1188,6 @@
                                                     <p>Nama Guru: {previewSurat.teacherName}</p>
                                                 </div>
                                             )}
-
-                                            {/* Kondisi isi surat */}
-                                            {previewSurat.category === 'surat Mutasi Siswa' && previewSurat.isisurat && (
-                                                <div className="mb-4 bg-gray-50 p4 border rounded">
-                                                    <p className="font-bold mb-2">text yang kamu inginkan</p>
-                                                    <p>NISN: {previewSurat.nisn}</p>
-                                                </div>
-                                            )}
                                             
                                             <p className="mb-4 indent-8">
                                                 Dengan hormat, melalui surat ini kami dari pihak SDIT Annihayah memberitahukan hal-hal terkait dengan <b>{previewSurat.category}</b>.
