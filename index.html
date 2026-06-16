@@ -846,9 +846,7 @@
                                             <div className="text-center border-b-2 border-black pb-2 mb-4">
                                                 <h1 className="text-xl font-bold uppercase tracking-widest">Transkrip Nilai Akademik Siswa</h1>
                                                 <h2 className="text-lg font-bold">SDIT ANNIHAYAH</h2>
-                                                <p className="text-xs">SK Ijin Operasional :503/4853/5/IPSS/X/DPMPTSP/2019 NPSN : 69993044</p>
-                                                <p className="text-xs">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
-                                                <p className="text-xs">E-mail : annihayah.sdit@gmail.com</p>
+                                                <p className="text-xs">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat</p>
                                             </div>
 
                                             <div className="grid grid-cols-2 text-xs text-black mb-4 gap-y-1">
@@ -941,7 +939,7 @@
                             <div className="text-center border-b-4 border-black pb-4 mb-6">
                                 <h1 className="text-2xl font-bold uppercase">Laporan Hasil Belajar Siswa</h1>
                                 <h2 className="text-xl font-bold">SDIT ANNIHAYAH</h2>
-                                <p className="text-sm">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
+                                <p className="text-sm">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat</p>
                             </div>
                             
                             <div className="flex justify-between text-sm mb-6 font-semibold">
@@ -1055,6 +1053,10 @@
                 const newData = Object.fromEntries(formData.entries());
                 newData.id = Date.now();
                 newData.type = tab;
+                // Defaulting subject based on category if input is removed
+                if (!newData.subject) {
+                    newData.subject = newData.category || 'Surat Keluar';
+                }
                 if (tab === 'Keluar' && !newData.number) {
                     newData.number = generateSuratNumber();
                 }
@@ -1134,11 +1136,10 @@
                                 <div className="p-6 overflow-y-auto flex-1 bg-gray-300">
                                     <div id="surat-preview-print" className="paper-a4 text-black text-sm">
                                         <div className="text-center border-b-2 border-black pb-4 mb-6">
-                                            <h1 className="text-xl font-bold uppercase tracking-widest">YAYASAN ANNIHAYAH</h1>
+                                            <h1 className="text-xl font-bold uppercase tracking-widest">YAYASAN PENDIDIKAN ISLAM ANNIHAYAH</h1>
                                             <h2 className="text-2xl font-bold uppercase">SDIT ANNIHAYAH</h2>
-                                            <p className="text-xs">SK Ijin Operasional :503/4853/5/IPSS/X/DPMPTSP/2019 NPSN : 69993044</p>
-                                            <p className="text-xs">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
-                                            <p className="text-xs">E-mail : annihayah.sdit@gmail.com</p>
+                                            <p className="text-xs">Terakreditasi "A" - NPSN: 12345678</p>
+                                            <p className="text-xs">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat 41311</p>
                                         </div>
                                         
                                         <div className="flex justify-between items-start mb-8">
@@ -1261,9 +1262,7 @@
                                                     </div>
                                                 )}
 
-                                                <div><label className="block text-xs font-medium text-gray-700 mb-1">Nomor Surat (Otomatis)</label><input type="text" readOnly placeholder="Otomatis (Misal: 002/SDIT-AN/VI/2026)" className="w-full border p-2 rounded bg-gray-100" /></div>
                                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Tujuan / Penerima</label><input type="text" name="recipient" required className="w-full border p-2 rounded" /></div>
-                                                <div><label className="block text-xs font-medium text-gray-700 mb-1">Perihal</label><input type="text" name="subject" required className="w-full border p-2 rounded" /></div>
                                             </>
                                         )}
                                     </form>
