@@ -1188,6 +1188,14 @@
                                                 </div>
                                             )}
 
+                                            {/* Kondisi kategori surat */}
+                                            {previewSurat.category === 'surat Mutasi Siswa' && previewSurat.textarea && (
+                                                <div className="mb-4 bg-gray-50 p4 border rounded">
+                                                    <p className="font-bold mb-2"></p>
+                                                    <p>Kelas: {previewSurat.studentName}</p>
+                                                </div>
+                                            )}
+                                            
                                             <p className="mb-4 indent-8">
                                                 Dengan hormat, melalui surat ini kami dari pihak SDIT Annihayah memberitahukan hal-hal terkait dengan <b>{previewSurat.category}</b>.
                                                 Surat ini diterbitkan sebagai pengantar/keterangan resmi dari sekolah kami yang ditujukan kepada instansi yang Bapak/Ibu pimpin.
