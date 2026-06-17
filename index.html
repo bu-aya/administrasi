@@ -64,23 +64,10 @@
             nipKepsek: "198001012005011001",
             tglRapor: "2026-06-20",
             tglTranskrip: "2026-06-25",
-            tglSurat: "2026-06-15",
-            tglIjazah: "2026-06-30"
+            tglSurat: "2026-06-15"
         };
 
-        const initialTpCp = {
-            'PAI': { 'Fase A (Kelas 1-2)': ['Hafalan surat pendek'], 'Fase B (Kelas 3-4)': ['Memahami rukun Islam'], 'Fase C (Kelas 5-6)': ['Sejarah Nabi Muhammad SAW'] },
-            'B.Indo': { 'Fase A (Kelas 1-2)': ['Membaca teks cerita'], 'Fase B (Kelas 3-4)': ['Menulis paragraf deskriptif'], 'Fase C (Kelas 5-6)': ['Menulis laporan hasil pengamatan'] }
-        };
-
-        const initialClasses = [
-            { name: "1A", teacher: "Ustadz Budi" }, { name: "1B", teacher: "Ustadzah Siti" },
-            { name: "2A", teacher: "Ustadz Andi" }, { name: "2B", teacher: "Ustadzah Rina" },
-            { name: "3A", teacher: "Ustadz Dedi" }, { name: "3B", teacher: "Ustadzah Eka" },
-            { name: "4A", teacher: "Ustadz Fajar" }, { name: "4B", teacher: "Ustadzah Gina" },
-            { name: "5A", teacher: "Ustadz Huda" }, { name: "5B", teacher: "Ustadzah Indah" },
-            { name: "6A", teacher: "Ustadz Jaka" }, { name: "6B", teacher: "Ustadzah Kiki" }
-        ];
+        const initialClasses = ["1A", "1B", "2A", "2B", "3A", "3B", "4A", "4B", "5A", "5B", "6A", "6B"];
         const initialYears = ["2022/2023", "2023/2024", "2024/2025", "2025/2026"];
 
         const initialStudents = [
@@ -106,8 +93,6 @@
         ];
 
         // --- HELPER FUNCTIONS ---
-        const allPossibleSubjects = ['PAI', 'PPKN', 'B.Indo', 'MTK', 'SBDP', 'PJOK', 'B.Sunda', 'B.Inggris', 'IPAS'];
-
         const getSubjectsByYear = (year) => {
             if(!year) return [];
             const baseSubjects = ['PAI', 'PPKN', 'B.Indo', 'MTK', 'SBDP', 'PJOK', 'B.Sunda', 'B.Inggris'];
@@ -115,16 +100,12 @@
             if (startYear >= 2024) {
                 return [...baseSubjects, 'IPAS'];
             } else {
-                return baseSubjects;
+                return [...baseSubjects, 'IPA', 'IPS'];
             }
         };
 
-        const getPhaseByClass = (className) => {
-            const grade = parseInt(className);
-            if (grade <= 2) return 'Fase A (Kelas 1-2)';
-            if (grade <= 4) return 'Fase B (Kelas 3-4)';
-            return 'Fase C (Kelas 5-6)';
-        };
+        // Daftar semua mata pelajaran yang mungkin ada untuk header transkrip
+        const allPossibleSubjects = ['PAI', 'PPKN', 'B.Indo', 'MTK', 'IPA', 'IPS', 'IPAS', 'SBDP', 'PJOK', 'B.Sunda', 'B.Inggris'];
 
         const generatePDF = (elementId, filename, isLandscape = false) => {
             const element = document.getElementById(elementId);
@@ -166,7 +147,6 @@
             const [settings, setSettings] = useState(initialSettings);
             const [records, setRecords] = useState(initialRecords);
             const [letters, setLetters] = useState(initialLetters);
-            const [tpCp, setTpCp] = useState(initialTpCp);
 
             // Toast/Notification state
             const [toast, setToast] = useState(null);
@@ -181,9 +161,9 @@
                     case 'siswa': return <DataSiswa students={students} setStudents={setStudents} classes={classes} years={years} showToast={showToast} />;
                     case 'nilai': return <NilaiRapor students={students} classes={classes} years={years} records={records} setRecords={setRecords} showToast={showToast} />;
                     case 'alumni': return <RiwayatAlumni students={students} records={records} settings={settings} />;
-                    case 'cetak': return <CetakRapor students={students} records={records} settings={settings} years={years} tpCp={tpCp} />;
+                    case 'cetak': return <CetakRapor students={students} records={records} settings={settings} years={years} />;
                     case 'surat': return <Persuratan letters={letters} setLetters={setLetters} settings={settings} showToast={showToast} />;
-                    case 'pengaturan': return <Pengaturan settings={settings} setSettings={setSettings} classes={classes} setClasses={setClasses} years={years} setYears={setYears} tpCp={tpCp} setTpCp={setTpCp} showToast={showToast} />;
+                    case 'pengaturan': return <Pengaturan settings={settings} setSettings={setSettings} classes={classes} setClasses={setClasses} years={years} setYears={setYears} showToast={showToast} />;
                     default: return <Dashboard students={students} />;
                 }
             };
@@ -477,7 +457,7 @@
                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Nama Ibu</label><input name="mother" defaultValue={data?.mother} className="w-full border p-2 rounded focus:ring bg-gray-50" /></div>
                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Kelas</label>
                                     <select name="class" defaultValue={data?.class} className="w-full border p-2 rounded focus:ring bg-gray-50">
-                                        {classes.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                                        {classes.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label>
@@ -528,7 +508,7 @@
 
         // 3. NILAI & LEGER
         const NilaiRapor = ({ students, classes, years, records, setRecords, showToast }) => {
-            const [selClass, setSelClass] = useState(classes[0]?.name || "");
+            const [selClass, setSelClass] = useState(classes[0]);
             const [selYear, setSelYear] = useState(years[years.length-1]);
             const [selSem, setSelSem] = useState('Ganjil');
 
@@ -565,7 +545,7 @@
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Kelas</label>
                                 <select className="border rounded p-2 text-sm min-w-[100px]" value={selClass} onChange={e => setSelClass(e.target.value)}>
-                                    {classes.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                                    {classes.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
                             <div>
@@ -743,43 +723,10 @@
                         {student ? (
                             <>
                                 <div className="flex justify-end gap-3 mb-2">
-                                    <button onClick={() => generatePDF('print-ijazah', `Ijazah_${student.name}.pdf`, true)} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded shadow hover:bg-blue-700 transition">
-                                        <i className="fa-solid fa-certificate mr-2"></i> Cetak Ijazah
-                                    </button>
                                     <button onClick={() => generatePDF('print-alumni', `Transkrip_${student.name}.pdf`, true)} className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition">
-                                        <i className="fa-solid fa-file-pdf mr-2"></i> Cetak Transkrip
+                                        <i className="fa-solid fa-file-pdf mr-2"></i> Cetak Transkrip (Landscape)
                                     </button>
                                 </div>
-                                
-                                {/* Template Ijazah */}
-                                <div className="hidden" id="print-ijazah">
-                                    <div className="paper-a4-landscape p-16 text-black border-8 border-double border-yellow-700 flex flex-col items-center text-center">
-                                        <h1 className="text-3xl font-serif font-bold uppercase mb-2">Ijazah</h1>
-                                        <p className="text-xl uppercase italic">Sekolah Dasar Islam Terpadu Annihayah</p>
-                                        <div className="w-24 h-1 bg-yellow-700 my-6"></div>
-                                        <p className="text-sm mb-8">Dengan ini menyatakan bahwa:</p>
-                                        <div className="space-y-3 text-lg font-bold mb-8">
-                                            <p className="text-2xl uppercase border-b border-black">{student.name}</p>
-                                            <p>Tempat/Tgl Lahir: {student.pob}, {student.dob}</p>
-                                            <p>NIS: {student.nis} / NISN: {student.nisn}</p>
-                                            <p>Ayah: {student.father} • Ibu: {student.mother}</p>
-                                        </div>
-                                        <p className="text-sm mb-10 leading-relaxed">Telah menyelesaikan seluruh program pendidikan tahun ajaran {student.year} dan dinyatakan LULUS.</p>
-                                        <div className="w-full flex justify-between mt-10">
-                                            <div className="text-left w-64">
-                                                <p>No. Ijazah: {student.ijazahNo || '-'}</p>
-                                            </div>
-                                            <div className="text-right w-64">
-                                                <p>Karawang, {settings.tglIjazah}</p>
-                                                <p>Kepala Sekolah,</p>
-                                                <br/><br/><br/>
-                                                <p className="font-bold underline">{settings.kepalaSekolah}</p>
-                                                <p>NIP. {settings.nipKepsek}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div className="bg-white p-8 shadow-sm border border-gray-200 relative overflow-hidden text-black" id="print-alumni">
                                     <div className="text-center border-b-2 border-black pb-4 mb-6">
                                         <h1 className="text-xl font-bold uppercase tracking-widest">Transkrip Nilai Akademik Siswa</h1>
@@ -822,7 +769,7 @@
         };
 
         // 5. CETAK RAPOR
-        const CetakRapor = ({ students, records, settings, years, tpCp }) => {
+        const CetakRapor = ({ students, records, settings, years }) => {
             const [selStudent, setSelStudent] = useState('');
             const [selYear, setSelYear] = useState(years[years.length-1]);
             const [selSem, setSelSem] = useState('Ganjil');
@@ -830,22 +777,6 @@
             const student = students.find(s => s.id === parseInt(selStudent));
             const record = student ? records[`${student.id}_${selYear}_${selSem}`] : null;
             const subjects = getSubjectsByYear(selYear);
-
-            // Fungsi untuk membuat deskripsi berdasarkan TP/CP
-            const getDeskripsi = (sub, score, className) => {
-                const phase = getPhaseByClass(className);
-                const tps = tpCp[sub]?.[phase] || [];
-                
-                if (tps.length === 0) return "Telah menuntaskan materi pembelajaran dengan baik.";
-                
-                if (score >= 85) {
-                    return `Ananda sudah sangat kompeten dalam ${tps.join(", ")}.`;
-                } else if (score >= 75) {
-                    return `Ananda sudah cukup baik dalam ${tps.slice(0, 2).join(", ")}, namun perlu bimbingan pada ${tps[tps.length-1] || 'materi terkait'}.`;
-                } else {
-                    return `Perlu bimbingan lebih intensif dalam ${tps.slice(0, 1).join(", ")}.`;
-                }
-            };
 
             return (
                 <div className="space-y-6">
@@ -901,19 +832,20 @@
                                     <tr className="bg-gray-100">
                                         <th className="border border-black p-2 w-10 text-center">No</th>
                                         <th className="border border-black p-2">Mata Pelajaran</th>
-                                        <th className="border border-black p-2 w-20 text-center">Nilai</th>
-                                        <th className="border border-black p-2 w-64 text-center">Deskripsi Kompetensi</th>
+                                        <th className="border border-black p-2 w-24 text-center">Nilai</th>
+                                        <th className="border border-black p-2 w-48 text-center">Predikat</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {subjects.map((sub, idx) => {
                                         const score = record.scores[sub] || 0;
+                                        const predikat = score >= 90 ? 'A (Sangat Baik)' : score >= 80 ? 'B (Baik)' : score >= 70 ? 'C (Cukup)' : 'D (Kurang)';
                                         return (
                                             <tr key={sub}>
                                                 <td className="border border-black p-2 text-center">{idx + 1}</td>
-                                                <td className="border border-black p-2 font-medium">{sub}</td>
+                                                <td className="border border-black p-2">{sub}</td>
                                                 <td className="border border-black p-2 text-center font-bold">{score}</td>
-                                                <td className="border border-black p-2 text-xs text-justify">{getDeskripsi(sub, score, record.class)}</td>
+                                                <td className="border border-black p-2 text-center text-xs">{predikat}</td>
                                             </tr>
                                         );
                                     })}
@@ -1144,7 +1076,6 @@
                                                         <option>Surat Kelulusan</option>
                                                         <option>Surat Undangan</option>
                                                         <option>Surat Dinas</option>
-                                                        <option>Surat Terima</option>
                                                     </select>
                                                 </div>
                                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Nomor Surat (Otomatis)</label><input type="text" readOnly placeholder="Otomatis (Misal: 002/SDIT-AN/VI/2026)" className="w-full border p-2 rounded bg-gray-100" /></div>
@@ -1166,131 +1097,29 @@
         };
 
         // 7. PENGATURAN
-        const Pengaturan = ({ settings, setSettings, classes, setClasses, years, setYears, tpCp, setTpCp, showToast }) => {
-            const [activeSubTab, setActiveSubTab] = useState('umum');
-            const [selSubject, setSelSubject] = useState(allPossibleSubjects[0]);
-            const [selLevel, setSelLevel] = useState('Fase A (Kelas 1-2)');
-            const [newTp, setNewTp] = useState('');
-            const [newClassName, setNewClassName] = useState('');
-            const [newTeacherName, setNewTeacherName] = useState('');
-
+        const Pengaturan = ({ settings, setSettings, classes, setClasses, years, setYears, showToast }) => {
             const handleSettingChange = (e) => setSettings({...settings, [e.target.name]: e.target.value});
             
-            const addClass = () => {
-                if(!newClassName || !newTeacherName) return;
-                setClasses([...classes, { name: newClassName, teacher: newTeacherName }]);
-                setNewClassName('');
-                setNewTeacherName('');
-                showToast("Kelas berhasil ditambahkan");
-            };
-
-            const removeClass = (name) => {
-                setClasses(classes.filter(c => c.name !== name));
-            };
-            
-            const addTp = () => {
-                if(!newTp) return;
-                const currentSubs = tpCp[selSubject] || {};
-                const currentLevelTps = currentSubs[selLevel] || [];
-                
-                setTpCp({
-                    ...tpCp, 
-                    [selSubject]: { 
-                        ...currentSubs, 
-                        [selLevel]: [...currentLevelTps, newTp] 
-                    }
-                });
-                setNewTp('');
-                showToast("TP/CP berhasil ditambahkan");
-            };
-
-            const removeTp = (index) => {
-                const currentSubs = tpCp[selSubject] || {};
-                const updated = currentSubs[selLevel].filter((_, i) => i !== index);
-                setTpCp({
-                    ...tpCp, 
-                    [selSubject]: { 
-                        ...currentSubs, 
-                        [selLevel]: updated 
-                    }
-                });
-            };
-
             return (
-                <div className="h-full overflow-y-auto pb-10 space-y-6">
-                    <div className="flex border-b mb-6">
-                        <button className={`py-2 px-4 ${activeSubTab === 'umum' ? 'border-b-2 border-green-600 font-bold' : ''}`} onClick={() => setActiveSubTab('umum')}>Pengaturan Umum</button>
-                        <button className={`py-2 px-4 ${activeSubTab === 'tpcp' ? 'border-b-2 border-green-600 font-bold' : ''}`} onClick={() => setActiveSubTab('tpcp')}>Pengaturan TP & CP</button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full overflow-y-auto pb-10">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Informasi Sekolah</h3>
+                        <div className="space-y-4">
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Sekolah</label><input name="kepalaSekolah" value={settings.kepalaSekolah} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">NIP Kepala Sekolah</label><input name="nipKepsek" value={settings.nipKepsek} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Tanggal Cetak Dokumen (Default)</h3>
+                        <div className="space-y-4">
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Rapor</label><input type="date" name="tglRapor" value={settings.tglRapor} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Transkrip</label><input type="date" name="tglTranskrip" value={settings.tglTranskrip} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Surat Keluar</label><input type="date" name="tglSurat" value={settings.tglSurat} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                        </div>
                     </div>
 
-                    {activeSubTab === 'umum' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Informasi Sekolah</h3>
-                                <div className="space-y-4">
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Sekolah</label><input name="kepalaSekolah" value={settings.kepalaSekolah} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">NIP Kepala Sekolah</label><input name="nipKepsek" value={settings.nipKepsek} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Tanggal Cetak Dokumen</h3>
-                                <div className="space-y-4">
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Rapor</label><input type="date" name="tglRapor" value={settings.tglRapor} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Transkrip</label><input type="date" name="tglTranskrip" value={settings.tglTranskrip} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Ijazah</label><input type="date" name="tglIjazah" value={settings.tglIjazah} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2">
-                                <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Manajemen Rombel & Wali Kelas</h3>
-                                <div className="flex gap-2 mb-4">
-                                    <input value={newClassName} onChange={e => setNewClassName(e.target.value)} placeholder="Kelas (e.g. 1A)" className="w-1/3 border p-2 rounded text-sm" />
-                                    <input value={newTeacherName} onChange={e => setNewTeacherName(e.target.value)} placeholder="Nama Wali Kelas" className="flex-1 border p-2 rounded text-sm" />
-                                    <button onClick={addClass} className="bg-green-600 text-white px-3 py-2 rounded text-sm"><i className="fa-solid fa-plus"></i></button>
-                                </div>
-                                <div className="space-y-2 h-40 overflow-y-auto">
-                                    {classes.map(c => (
-                                        <div key={c.name} className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
-                                            <span><strong>{c.name}</strong> - {c.teacher}</span>
-                                            <button onClick={() => removeClass(c.name)} className="text-red-500 hover:text-red-700"><i className="fa-solid fa-trash"></i></button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeSubTab === 'tpcp' && (
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h3 className="font-bold text-gray-800 mb-4">Pengelolaan TP & CP Mata Pelajaran</h3>
-                            <div className="flex flex-wrap gap-4 mb-6">
-                                <select className="border p-2 rounded w-48" value={selSubject} onChange={e => setSelSubject(e.target.value)}>
-                                    {allPossibleSubjects.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                                </select>
-                                <select className="border p-2 rounded w-48" value={selLevel} onChange={e => setSelLevel(e.target.value)}>
-                                    <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
-                                    <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
-                                    <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
-                                </select>
-                                <div className="flex-1 flex gap-2">
-                                    <input value={newTp} onChange={e => setNewTp(e.target.value)} placeholder="Tambah TP baru..." className="flex-1 border p-2 rounded" />
-                                    <button onClick={addTp} className="bg-green-600 text-white px-4 py-2 rounded font-medium hover:bg-green-700">Tambah</button>
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                {(tpCp[selSubject]?.[selLevel] || []).map((item, index) => (
-                                    <div key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded border">
-                                        <span>{index + 1}. {item}</span>
-                                        <button onClick={() => removeTp(index)} className="text-red-600 hover:bg-red-50 p-2 rounded"><i className="fa-solid fa-trash"></i></button>
-                                    </div>
-                                ))}
-                                {(tpCp[selSubject]?.[selLevel] || []).length === 0 && <p className="text-gray-500 italic">Belum ada TP/CP untuk {selSubject} pada {selLevel}.</p>}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-end">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 flex justify-end">
                         <button onClick={() => showToast("Pengaturan berhasil disimpan")} className="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 font-medium">Simpan Perubahan</button>
                     </div>
                 </div>
