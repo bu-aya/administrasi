@@ -64,23 +64,10 @@
             nipKepsek: "198001012005011001",
             tglRapor: "2026-06-20",
             tglTranskrip: "2026-06-25",
-            tglSurat: "2026-06-15",
-            tglIjazah: "2026-06-30"
+            tglSurat: "2026-06-15"
         };
 
-        const initialTpCp = {
-            'PAI': { 'Fase A (Kelas 1-2)': ['Hafalan surat pendek'], 'Fase B (Kelas 3-4)': ['Memahami rukun Islam'], 'Fase C (Kelas 5-6)': ['Sejarah Nabi Muhammad SAW'] },
-            'B.Indo': { 'Fase A (Kelas 1-2)': ['Membaca teks cerita'], 'Fase B (Kelas 3-4)': ['Menulis paragraf deskriptif'], 'Fase C (Kelas 5-6)': ['Menulis laporan hasil pengamatan'] }
-        };
-
-        const initialClasses = [
-            { name: "1A", teacher: "Ustadz Budi" }, { name: "1B", teacher: "Ustadzah Siti" },
-            { name: "2A", teacher: "Ustadz Andi" }, { name: "2B", teacher: "Ustadzah Rina" },
-            { name: "3A", teacher: "Ustadz Dedi" }, { name: "3B", teacher: "Ustadzah Eka" },
-            { name: "4A", teacher: "Ustadz Fajar" }, { name: "4B", teacher: "Ustadzah Gina" },
-            { name: "5A", teacher: "Ustadz Huda" }, { name: "5B", teacher: "Ustadzah Indah" },
-            { name: "6A", teacher: "Ustadz Jaka" }, { name: "6B", teacher: "Ustadzah Kiki" }
-        ];
+        const initialClasses = ["1A", "1B", "2A", "2B", "3A", "3B", "4A", "4B", "5A", "5B", "6A", "6B"];
         const initialYears = ["2022/2023", "2023/2024", "2024/2025", "2025/2026"];
 
         const initialStudents = [
@@ -102,13 +89,10 @@
 
         const initialLetters = [
             { id: 1, type: 'Masuk', date: '2026-06-01', number: '015/DISDIK/VI/2026', sender: 'Dinas Pendidikan Karawang', subject: 'Undangan Rapat Kurikulum' },
-            { id: 2, type: 'Keluar', date: '2026-06-05', number: '001/SDIT-AN/VI/2026', category: 'Mutasi Siswa', recipient: 'SDN 2 Jakarta', subject: 'Pengantar Mutasi an. Dina Mariana' },
-            { id: 3, type: 'Keluar', date: '2026-06-10', number: '002/SDIT-AN/VI/2026', category: 'Surat Terima Siswa', recipient: 'Orang Tua Siswa', subject: 'Penerimaan Siswa Pindahan Baru' }
+            { id: 2, type: 'Keluar', date: '2026-06-05', number: '001/SDIT-AN/VI/2026', category: 'Mutasi Siswa', recipient: 'SDN 2 Jakarta', subject: 'Pengantar Mutasi an. Dina Mariana' }
         ];
 
         // --- HELPER FUNCTIONS ---
-        const allPossibleSubjects = ['PAI', 'PPKN', 'B.Indo', 'MTK', 'SBDP', 'PJOK', 'B.Sunda', 'B.Inggris', 'IPAS'];
-
         const getSubjectsByYear = (year) => {
             if(!year) return [];
             const baseSubjects = ['PAI', 'PPKN', 'B.Indo', 'MTK', 'SBDP', 'PJOK', 'B.Sunda', 'B.Inggris'];
@@ -116,16 +100,12 @@
             if (startYear >= 2024) {
                 return [...baseSubjects, 'IPAS'];
             } else {
-                return baseSubjects;
+                return [...baseSubjects, 'IPA', 'IPS'];
             }
         };
 
-        const getPhaseByClass = (className) => {
-            const grade = parseInt(className);
-            if (grade <= 2) return 'Fase A (Kelas 1-2)';
-            if (grade <= 4) return 'Fase B (Kelas 3-4)';
-            return 'Fase C (Kelas 5-6)';
-        };
+        // Daftar semua mata pelajaran yang mungkin ada untuk header transkrip
+        const allPossibleSubjects = ['PAI', 'PPKN', 'B.Indo', 'MTK', 'IPA', 'IPS', 'IPAS', 'SBDP', 'PJOK', 'B.Sunda', 'B.Inggris'];
 
         const generatePDF = (elementId, filename, isLandscape = false) => {
             const element = document.getElementById(elementId);
@@ -140,6 +120,7 @@
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
+                // Sembunyikan kembali area print jika itu spesifik area tersembunyi
                 if(element.classList.contains('print-area')) {
                     element.classList.add('hidden', 'print-only');
                 }
@@ -147,6 +128,7 @@
         };
 
         const downloadCSV = (filename, content) => {
+            // Tambahkan BOM agar Excel membaca UTF-8 dengan benar
             const blob = new Blob(["\ufeff" + content], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -165,7 +147,6 @@
             const [settings, setSettings] = useState(initialSettings);
             const [records, setRecords] = useState(initialRecords);
             const [letters, setLetters] = useState(initialLetters);
-            const [tpCp, setTpCp] = useState(initialTpCp);
 
             // Toast/Notification state
             const [toast, setToast] = useState(null);
@@ -180,9 +161,9 @@
                     case 'siswa': return <DataSiswa students={students} setStudents={setStudents} classes={classes} years={years} showToast={showToast} />;
                     case 'nilai': return <NilaiRapor students={students} classes={classes} years={years} records={records} setRecords={setRecords} showToast={showToast} />;
                     case 'alumni': return <RiwayatAlumni students={students} records={records} settings={settings} />;
-                    case 'cetak': return <CetakRapor students={students} records={records} settings={settings} years={years} tpCp={tpCp} classes={classes} />;
-                    case 'surat': return <Persuratan students={students} letters={letters} setLetters={setLetters} settings={settings} showToast={showToast} />;
-                    case 'pengaturan': return <Pengaturan settings={settings} setSettings={setSettings} classes={classes} setClasses={setClasses} years={years} setYears={setYears} tpCp={tpCp} setTpCp={setTpCp} showToast={showToast} />;
+                    case 'cetak': return <CetakRapor students={students} records={records} settings={settings} years={years} />;
+                    case 'surat': return <Persuratan letters={letters} setLetters={setLetters} settings={settings} showToast={showToast} />;
+                    case 'pengaturan': return <Pengaturan settings={settings} setSettings={setSettings} classes={classes} setClasses={setClasses} years={years} setYears={setYears} showToast={showToast} />;
                     default: return <Dashboard students={students} />;
                 }
             };
@@ -192,8 +173,8 @@
                     {/* Sidebar */}
                     <div className="w-64 bg-green-800 text-white flex flex-col shadow-xl z-10">
                         <div className="p-5 border-b border-green-700 flex items-center gap-3">
-                            <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center overflow-hidden border border-green-700">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Logo_Tut_Wuri_Handayani.svg/512px-Logo_Tut_Wuri_Handayani.svg.png" alt="Tut Wuri Handayani" className="w-8 h-8 object-contain" />
+                            <div className="bg-white text-green-800 rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl">
+                                <i className="fa-solid fa-school"></i>
                             </div>
                             <div>
                                 <h1 className="font-bold text-lg leading-tight">SDIT ANNIHAYAH</h1>
@@ -257,6 +238,8 @@
             );
         };
 
+        // --- SUB-COMPONENTS ---
+
         // 1. DASHBOARD
         const Dashboard = ({ students }) => {
             const chartRef = useRef(null);
@@ -294,16 +277,6 @@
 
             return (
                 <div className="space-y-6">
-                    {/* Header Dashboard dengan Logo */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-6">
-                        <img src="LS.jpg" alt="Logo Sekolah" className="w-24 h-24 object-contain" />
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-800">Sistem Administrasi Sekolah</h2>
-                            <p className="text-green-700 font-semibold text-lg">SDIT ANNIHAYAH</p>
-                            <p className="text-gray-500 text-sm">Selamat datang, silakan kelola data siswa dan administrasi sekolah Anda.</p>
-                        </div>
-                    </div>
-
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <StatCard title="Total Aktif" value={stats.aktif} icon="fa-users" color="bg-blue-500" />
                         <StatCard title="Laki-laki (Aktif)" value={stats.l} icon="fa-mars" color="bg-cyan-500" />
@@ -484,7 +457,7 @@
                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Nama Ibu</label><input name="mother" defaultValue={data?.mother} className="w-full border p-2 rounded focus:ring bg-gray-50" /></div>
                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Kelas</label>
                                     <select name="class" defaultValue={data?.class} className="w-full border p-2 rounded focus:ring bg-gray-50">
-                                        {classes.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                                        {classes.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label>
@@ -500,6 +473,7 @@
                                         <option value="Mutasi Keluar">Mutasi Keluar</option>
                                     </select>
                                 </div>
+                                {/* Dynamic Fields based on Status */}
                                 {status === 'Lulus' && (
                                     <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 bg-purple-50 p-4 rounded border border-purple-100">
                                         <div><label className="block text-xs font-medium text-gray-700 mb-1">No Ijazah</label><input name="ijazahNo" defaultValue={data?.ijazahNo} className="w-full border p-2 rounded" /></div>
@@ -534,7 +508,7 @@
 
         // 3. NILAI & LEGER
         const NilaiRapor = ({ students, classes, years, records, setRecords, showToast }) => {
-            const [selClass, setSelClass] = useState(classes[0]?.name || "");
+            const [selClass, setSelClass] = useState(classes[0]);
             const [selYear, setSelYear] = useState(years[years.length-1]);
             const [selSem, setSelSem] = useState('Ganjil');
 
@@ -571,7 +545,7 @@
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Kelas</label>
                                 <select className="border rounded p-2 text-sm min-w-[100px]" value={selClass} onChange={e => setSelClass(e.target.value)}>
-                                    {classes.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                                    {classes.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
                             <div>
@@ -655,52 +629,54 @@
             );
         };
 
-        // 4. RIWAYAT ALUMNI & VIEW SEBELUM CETAK/DOWNLOAD
+        // 4. RIWAYAT ALUMNI
         const RiwayatAlumni = ({ students, records, settings }) => {
             const alumni = students.filter(s => s.status === 'Lulus');
             const [selAlumniId, setSelAlumniId] = useState(alumni.length > 0 ? alumni[0].id : null);
-            const [showPreviewModal, setShowPreviewModal] = useState(false);
-            const [previewType, setPreviewType] = useState('ijazah'); // 'ijazah' atau 'transkrip'
 
             const student = alumni.find(s => s.id === parseInt(selAlumniId));
 
-            // Transkrip Matriks Akademik
+            // Tabel Transkrip Komprehensif
             const renderRekamJejakLengkap = () => {
                 if (!student) return null;
                 
+                // Susun kerangka 12 semester
                 const semesters = [];
                 for(let grade = 1; grade <= 6; grade++) {
-                    semesters.push({ grade, sem: 'Ganjil' });
-                    semesters.push({ grade, sem: 'Genap' });
+                    semesters.push({ grade, sem: 'Ganjil', label: `Kls ${grade} (G)` });
+                    semesters.push({ grade, sem: 'Genap', label: `Kls ${grade} (Gn)` });
                 }
 
+                // Cari data berdasarkan studentId
                 const studentRecords = Object.keys(records)
                     .filter(key => key.startsWith(`${student.id}_`))
                     .map(key => {
                         const [id, year, sem] = key.split('_');
                         const data = records[key];
+                        // Ekstrak angka kelas dari string "1A", "2B", dll
                         const grade = parseInt(data.class.match(/\d+/)?.[0] || "0");
                         return { grade, sem, data };
                     });
 
                 return (
-                    <div className="mt-4 border-t pt-4">
-                        <table className="w-full text-[10px] border-collapse border border-black text-center">
+                    <div className="mt-8 border-t pt-6" id="transkrip-table-container">
+                        <h4 className="font-bold text-gray-800 text-center uppercase mb-4 text-lg">Transkrip Nilai Akademik Lengkap</h4>
+                        <table className="w-full text-xs border-collapse border border-black text-center">
                             <thead>
                                 <tr className="bg-gray-100">
-                                    <th className="border border-black p-1 align-middle w-24" rowSpan="2">Mata Pelajaran</th>
-                                    <th className="border border-black p-0.5" colSpan="2">Kelas 1</th>
-                                    <th className="border border-black p-0.5" colSpan="2">Kelas 2</th>
-                                    <th className="border border-black p-0.5" colSpan="2">Kelas 3</th>
-                                    <th className="border border-black p-0.5" colSpan="2">Kelas 4</th>
-                                    <th className="border border-black p-0.5" colSpan="2">Kelas 5</th>
-                                    <th className="border border-black p-0.5" colSpan="2">Kelas 6</th>
+                                    <th className="border border-black p-2 align-middle w-32" rowSpan="2">Mata Pelajaran</th>
+                                    <th className="border border-black p-1" colSpan="2">Kelas 1</th>
+                                    <th className="border border-black p-1" colSpan="2">Kelas 2</th>
+                                    <th className="border border-black p-1" colSpan="2">Kelas 3</th>
+                                    <th className="border border-black p-1" colSpan="2">Kelas 4</th>
+                                    <th className="border border-black p-1" colSpan="2">Kelas 5</th>
+                                    <th className="border border-black p-1" colSpan="2">Kelas 6</th>
                                 </tr>
                                 <tr className="bg-gray-50">
                                     {[...Array(6)].map((_, i) => (
                                         <React.Fragment key={i}>
-                                            <th className="border border-black p-0.5 font-normal">Ganjil</th>
-                                            <th className="border border-black p-0.5 font-normal">Genap</th>
+                                            <th className="border border-black p-1 font-normal">Ganjil</th>
+                                            <th className="border border-black p-1 font-normal">Genap</th>
                                         </React.Fragment>
                                     ))}
                                 </tr>
@@ -708,12 +684,13 @@
                             <tbody>
                                 {allPossibleSubjects.map(sub => (
                                     <tr key={sub}>
-                                        <td className="border border-black p-1 text-left font-semibold">{sub}</td>
+                                        <td className="border border-black p-2 text-left font-medium">{sub}</td>
                                         {semesters.map((sCol, idx) => {
+                                            // Cari apakah ada rekor di kelas & semester ini
                                             const rec = studentRecords.find(r => r.grade === sCol.grade && r.sem === sCol.sem);
                                             const score = rec?.data?.scores?.[sub];
                                             return (
-                                                <td key={idx} className="border border-black p-0.5">
+                                                <td key={idx} className="border border-black p-1 text-center">
                                                     {score ? score : '-'}
                                                 </td>
                                             );
@@ -724,20 +701,6 @@
                         </table>
                     </div>
                 );
-            };
-
-            const triggerPreview = (type) => {
-                setPreviewType(type);
-                setShowPreviewModal(true);
-            };
-
-            const handleDownload = () => {
-                if (previewType === 'ijazah') {
-                    generatePDF('print-ijazah-doc', `Ijazah_${student.name}.pdf`, true);
-                } else {
-                    generatePDF('print-transkrip-doc', `Transkrip_${student.name}.pdf`, true);
-                }
-                setShowPreviewModal(false);
             };
 
             return (
@@ -756,133 +719,57 @@
                         </div>
                     </div>
                     
-                    <div className="w-full md:w-2/3 flex flex-col gap-4">
+                    <div className="w-full md:w-2/3 flex flex-col gap-4 overflow-y-auto pb-10">
                         {student ? (
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center justify-between border-b pb-4 mb-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-                                                <i className="fa-solid fa-graduation-cap text-3xl"></i>
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-xl text-gray-800">{student.name}</h3>
-                                                <p className="text-sm text-gray-500">NISN: {student.nisn} | Tahun Ajaran Lulus: {student.year}</p>
-                                            </div>
+                            <>
+                                <div className="flex justify-end gap-3 mb-2">
+                                    <button onClick={() => generatePDF('print-alumni', `Transkrip_${student.name}.pdf`, true)} className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition">
+                                        <i className="fa-solid fa-file-pdf mr-2"></i> Cetak Transkrip (Landscape)
+                                    </button>
+                                </div>
+                                <div className="bg-white p-8 shadow-sm border border-gray-200 relative overflow-hidden text-black" id="print-alumni">
+                                    <div className="text-center border-b-2 border-black pb-4 mb-6">
+                                        <h1 className="text-xl font-bold uppercase tracking-widest">Transkrip Nilai Akademik Siswa</h1>
+                                        <h2 className="text-lg font-bold">SDIT ANNIHAYAH</h2>
+                                        <p className="text-xs">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 text-sm text-black mb-4 gap-y-1">
+                                        <div>
+                                            <p><span className="font-semibold w-32 inline-block">Nama Siswa</span>: {student.name}</p>
+                                            <p><span className="font-semibold w-32 inline-block">NIS / NISN</span>: {student.nis} / {student.nisn}</p>
+                                            <p><span className="font-semibold w-32 inline-block">Tempat/Tgl Lahir</span>: {student.pob}, {student.dob}</p>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => triggerPreview('ijazah')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition flex items-center gap-2">
-                                                <i className="fa-solid fa-eye"></i> View Ijazah
-                                            </button>
-                                            <button onClick={() => triggerPreview('transkrip')} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition flex items-center gap-2">
-                                                <i className="fa-solid fa-eye"></i> View Transkrip
-                                            </button>
+                                        <div>
+                                            <p><span className="font-semibold w-32 inline-block">No Ijazah</span>: {student.ijazahNo}</p>
+                                            <p><span className="font-semibold w-32 inline-block">Tanggal Lulus</span>: {student.gradDate}</p>
+                                            <p><span className="font-semibold w-32 inline-block">Rata-rata Ijazah</span>: <span className="font-bold">{student.avgScore}</span></p>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg text-sm">
-                                        <div><span className="text-gray-500 font-medium">Tempat, Tanggal Lahir:</span> <p className="font-semibold text-gray-800">{student.pob}, {student.dob}</p></div>
-                                        <div><span className="text-gray-500 font-medium">Nomor Ijazah:</span> <p className="font-semibold text-gray-800 font-mono">{student.ijazahNo || '-'}</p></div>
-                                        <div><span className="text-gray-500 font-medium">Nama Ayah:</span> <p className="font-semibold text-gray-800">{student.father}</p></div>
-                                        <div><span className="text-gray-500 font-medium">Nama Ibu:</span> <p className="font-semibold text-gray-800">{student.mother}</p></div>
+                                    {renderRekamJejakLengkap()}
+
+                                    <div className="mt-8 text-right text-sm">
+                                        <p>Karawang, {settings.tglTranskrip}</p>
+                                        <p>Kepala Sekolah,</p>
+                                        <br/><br/><br/>
+                                        <p className="font-bold underline">{settings.kepalaSekolah}</p>
+                                        <p>NIP. {settings.nipKepsek}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </>
                         ) : (
                             <div className="flex-1 bg-white flex items-center justify-center rounded-xl shadow-sm text-gray-400">
-                                Pilih alumni untuk memproses administrasi.
+                                Pilih alumni untuk melihat rekam jejak.
                             </div>
                         )}
                     </div>
-
-                    {/* MODAL VIEW SEBELUM CETAK/DOWNLOAD */}
-                    {showPreviewModal && student && (
-                        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 py-8">
-                            <div className="bg-gray-200 rounded-xl shadow-2xl w-full max-w-5xl h-full flex flex-col overflow-hidden">
-                                <div className="px-6 py-4 bg-white border-b flex justify-between items-center shadow-sm z-10">
-                                    <h3 className="font-bold text-gray-800">
-                                        <i className="fa-solid fa-file-invoice mr-2"></i> Preview {previewType === 'ijazah' ? 'Ijazah Resmi' : 'Transkrip Komprehensif'}
-                                    </h3>
-                                    <div className="flex gap-2">
-                                        <button onClick={handleDownload} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium shadow flex items-center gap-2">
-                                            <i className="fa-solid fa-download"></i> Cetak / Download PDF
-                                        </button>
-                                        <button onClick={() => setShowPreviewModal(false)} className="px-4 py-2 border rounded text-gray-600 bg-white hover:bg-gray-100 font-medium">
-                                            Tutup
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="p-6 overflow-y-auto flex-1 bg-gray-300 flex justify-center items-start">
-                                    {previewType === 'ijazah' ? (
-                                        /* Preview Template Ijazah */
-                                        <div id="print-ijazah-doc" className="paper-a4-landscape p-16 text-black border-8 border-double border-yellow-700 flex flex-col items-center text-center">
-                                            <h1 className="text-3xl font-serif font-bold uppercase mb-1">Ijazah Kelulusan</h1>
-                                            <p className="text-lg uppercase italic">Sekolah Dasar Islam Terpadu Annihayah</p>
-                                            <div className="w-24 h-1 bg-yellow-700 my-4"></div>
-                                            <p className="text-sm mb-6">Dengan ini menerangkan bahwa:</p>
-                                            <div className="space-y-2 text-md font-bold mb-6">
-                                                <p className="text-2xl uppercase border-b border-black pb-1 inline-block px-10">{student.name}</p>
-                                                <p>Tempat/Tgl Lahir: {student.pob}, {student.dob}</p>
-                                                <p>NIS: {student.nis} / NISN: {student.nisn}</p>
-                                                <p>Nama Orang Tua: {student.father} (Ayah) • {student.mother} (Ibu)</p>
-                                            </div>
-                                            <p className="text-sm mb-6 leading-relaxed">Telah menyelesaikan seluruh jenjang pendidikan sekolah dasar tahun ajaran {student.year} dan dinyatakan LULUS.</p>
-                                            <div className="w-full flex justify-between mt-6 text-sm">
-                                                <div className="text-left w-64">
-                                                    <p>No. Ijazah: <span className="font-mono">{student.ijazahNo || '-'}</span></p>
-                                                </div>
-                                                <div className="text-right w-64">
-                                                    <p>Karawang, {settings.tglIjazah}</p>
-                                                    <p>Kepala Sekolah,</p>
-                                                    <br/><br/><br/>
-                                                    <p className="font-bold underline">{settings.kepalaSekolah}</p>
-                                                    <p>NIP. {settings.nipKepsek}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        /* Preview Template Transkrip */
-                                        <div id="print-transkrip-doc" className="paper-a4 text-black text-sm relative">
-                                            <div className="text-center border-b-2 border-black pb-2 mb-4">
-                                                <h1 className="text-xl font-bold uppercase tracking-widest">Transkrip Nilai Akademik Siswa</h1>
-                                                <h2 className="text-lg font-bold">SDIT ANNIHAYAH</h2>
-                                                <p className="text-xs">SK Ijin Operasional :503/4853/5/IPSS/X/DPMPTSP/2019 NPSN : 69993044</p>
-                                                 <p className="text-xs">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
-                                                 <p className="text-xs">E-mail : annihayah.sdit@gmail.com</p>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 text-xs text-black mb-4 gap-y-1">
-                                                <div>
-                                                    <p><span className="font-semibold w-24 inline-block">Nama Siswa</span>: {student.name}</p>
-                                                    <p><span className="font-semibold w-24 inline-block">NIS / NISN</span>: {student.nis} / {student.nisn}</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p><span className="font-semibold w-24 inline-block text-left">No Ijazah</span>: {student.ijazahNo}</p>
-                                                    <p><span className="font-semibold w-24 inline-block text-left">Tanggal Lulus</span>: {student.gradDate}</p>
-                                                </div>
-                                            </div>
-
-                                            {renderRekamJejakLengkap()}
-
-                                            <div className="mt-8 text-right text-xs">
-                                                <p>Karawang, {settings.tglTranskrip}</p>
-                                                <p>Kepala Sekolah,</p>
-                                                <br/><br/><br/>
-                                                <p className="font-bold underline">{settings.kepalaSekolah}</p>
-                                                <p>NIP. {settings.nipKepsek}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             );
         };
 
         // 5. CETAK RAPOR
-        const CetakRapor = ({ students, records, settings, years, tpCp, classes }) => {
+        const CetakRapor = ({ students, records, settings, years }) => {
             const [selStudent, setSelStudent] = useState('');
             const [selYear, setSelYear] = useState(years[years.length-1]);
             const [selSem, setSelSem] = useState('Ganjil');
@@ -890,22 +777,6 @@
             const student = students.find(s => s.id === parseInt(selStudent));
             const record = student ? records[`${student.id}_${selYear}_${selSem}`] : null;
             const subjects = getSubjectsByYear(selYear);
-            const teacher = classes.find(c => c.name === record?.class)?.teacher;
-
-            const getDeskripsi = (sub, score, className) => {
-                const phase = getPhaseByClass(className);
-                const tps = tpCp[sub]?.[phase] || [];
-                
-                if (tps.length === 0) return "Telah menuntaskan materi pembelajaran dengan baik.";
-                
-                if (score >= 85) {
-                    return `Ananda sudah sangat kompeten dalam ${tps.join(", ")}.`;
-                } else if (score >= 75) {
-                    return `Ananda sudah cukup baik dalam ${tps.slice(0, 2).join(", ")}, namun perlu bimbingan pada ${tps[tps.length-1] || 'materi terkait'}.`;
-                } else {
-                    return `Perlu bimbingan lebih intensif dalam ${tps.slice(0, 1).join(", ")}.`;
-                }
-            };
 
             return (
                 <div className="space-y-6">
@@ -941,9 +812,7 @@
                             <div className="text-center border-b-4 border-black pb-4 mb-6">
                                 <h1 className="text-2xl font-bold uppercase">Laporan Hasil Belajar Siswa</h1>
                                 <h2 className="text-xl font-bold">SDIT ANNIHAYAH</h2>
-                                <p className="text-sm">SK Ijin Operasional :503/4853/5/IPSS/X/DPMPTSP/2019 NPSN : 69993044</p>
-                                <p className="text-sm">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
-                                <p className="text-sm">E-mail : annihayah.sdit@gmail.com</p>
+                                <p className="text-sm">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat</p>
                             </div>
                             
                             <div className="flex justify-between text-sm mb-6 font-semibold">
@@ -963,19 +832,20 @@
                                     <tr className="bg-gray-100">
                                         <th className="border border-black p-2 w-10 text-center">No</th>
                                         <th className="border border-black p-2">Mata Pelajaran</th>
-                                        <th className="border border-black p-2 w-20 text-center">Nilai</th>
-                                        <th className="border border-black p-2 w-64 text-center">Deskripsi Kompetensi</th>
+                                        <th className="border border-black p-2 w-24 text-center">Nilai</th>
+                                        <th className="border border-black p-2 w-48 text-center">Predikat</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {subjects.map((sub, idx) => {
                                         const score = record.scores[sub] || 0;
+                                        const predikat = score >= 90 ? 'A (Sangat Baik)' : score >= 80 ? 'B (Baik)' : score >= 70 ? 'C (Cukup)' : 'D (Kurang)';
                                         return (
                                             <tr key={sub}>
                                                 <td className="border border-black p-2 text-center">{idx + 1}</td>
-                                                <td className="border border-black p-2 font-medium">{sub}</td>
+                                                <td className="border border-black p-2">{sub}</td>
                                                 <td className="border border-black p-2 text-center font-bold">{score}</td>
-                                                <td className="border border-black p-2 text-xs text-justify">{getDeskripsi(sub, score, record.class)}</td>
+                                                <td className="border border-black p-2 text-center text-xs">{predikat}</td>
                                             </tr>
                                         );
                                     })}
@@ -1010,7 +880,7 @@
                                     <p>Karawang, {settings.tglRapor}</p>
                                     <p>Wali Kelas {record.class}</p>
                                     <br/><br/><br/>
-                                    <p className="font-bold underline text-center w-40 mx-auto">{teacher || "...................."}</p>
+                                    <p className="font-bold underline text-center w-40 mx-auto"></p>
                                 </div>
                             </div>
                             <div className="text-center text-sm mt-8">
@@ -1031,17 +901,10 @@
         };
 
         // 6. PERSURATAN
-        const Persuratan = ({ students, letters, setLetters, settings, showToast }) => {
+        const Persuratan = ({ letters, setLetters, settings, showToast }) => {
             const [tab, setTab] = useState('Keluar');
             const [showModal, setShowModal] = useState(false);
             const [previewSurat, setPreviewSurat] = useState(null);
-            const [formCategory, setFormCategory] = useState('Surat Terima Siswa');
-            const [selectedStudent, setSelectedStudent] = useState(null); // State untuk sinkronisasi data
-
-            const handleSelectStudent = (id) => {
-                const student = students.find(s => s.id === parseInt(id));
-                setSelectedStudent(student || null);
-            };
 
             const generateSuratNumber = () => {
                 const outLetters = letters.filter(l => l.type === 'Keluar');
@@ -1057,10 +920,6 @@
                 const newData = Object.fromEntries(formData.entries());
                 newData.id = Date.now();
                 newData.type = tab;
-                // Defaulting subject based on category if input is removed
-                if (!newData.subject) {
-                    newData.subject = newData.category || 'Surat Keluar';
-                }
                 if (tab === 'Keluar' && !newData.number) {
                     newData.number = generateSuratNumber();
                 }
@@ -1138,13 +997,13 @@
                                     </div>
                                 </div>
                                 <div className="p-6 overflow-y-auto flex-1 bg-gray-300">
+                                    {/* Kertas A4 Preview */}
                                     <div id="surat-preview-print" className="paper-a4 text-black text-sm">
                                         <div className="text-center border-b-2 border-black pb-4 mb-6">
-                                            <h1 className="text-xl font-bold uppercase tracking-widest">YAYASAN ANNIHAYAH</h1>
+                                            <h1 className="text-xl font-bold uppercase tracking-widest">YAYASAN PENDIDIKAN ISLAM ANNIHAYAH</h1>
                                             <h2 className="text-2xl font-bold uppercase">SDIT ANNIHAYAH</h2>
-                                            <p className="text-xs">SK Ijin Operasional :503/4853/5/IPSS/X/DPMPTSP/2019 NPSN : 69993044</p>
-                                            <p className="text-xs">Dusun Krajan Satu Desa Sukamerta Kecamatan Rawamerta - Karawang</p>
-                                            <p className="text-xs">E-mail : annihayah.sdit@gmail.com</p>
+                                            <p className="text-xs">Terakreditasi "A" - NPSN: 12345678</p>
+                                            <p className="text-xs">Jl. Pendidikan No. 123, Karawang Barat, Jawa Barat 41311</p>
                                         </div>
                                         
                                         <div className="flex justify-between items-start mb-8">
@@ -1168,31 +1027,13 @@
 
                                         <div className="text-justify leading-relaxed mb-10 min-h-[200px]">
                                             <p className="mb-4"><i>Assalamu'alaikum Warahmatullahi Wabarakatuh,</i></p>
-                                            <p className="mb-4"><i>Yang bertanda tangan dibawah ini, Kepala SDIT Annihayah Kecamatan Rawamerta Kabupaten Karawang menerangkan dengan sesunggguhnya bahwa :</i></p>
-                                            
-                                            {/* Kondisi data siswa */}
-                                            {['Surat Terima Siswa', 'Surat Mutasi Siswa', 'Surat Keterangan Aktif', 'Surat Kelakuan Baik', 'Surat Kelulusan'].includes(previewSurat.category) && (
-                                                <div className="mb-4 bg-gray-50 p-4 border rounded">
-                                                    <p className="font-bold mb-2"></p>
-                                                    <p>Nama: {previewSurat.studentName}</p>
-                                                    <p>NISN: {previewSurat.nisn}</p>
-                                                    <p>Tempat/Tgl Lahir: {previewSurat.pob}, {previewSurat.dob}</p>
-                                                </div>
-                                            )}
-
-                                            {/* Kondisi data guru */}
-                                            {previewSurat.category === 'Surat Dinas' && previewSurat.teacherName && (
-                                                <div className="mb-4 bg-gray-50 p-4 border rounded">
-                                                    <p className="font-bold mb-2">Data Terkait:</p>
-                                                    <p>Nama Guru: {previewSurat.teacherName}</p>
-                                                </div>
-                                            )}
-                                            
                                             <p className="mb-4 indent-8">
                                                 Dengan hormat, melalui surat ini kami dari pihak SDIT Annihayah memberitahukan hal-hal terkait dengan <b>{previewSurat.category}</b>.
-                                                Surat ini diterbitkan sebagai pengantar/keterangan resmi dari sekolah kami yang ditujukan kepada instansi yang Bapak/Ibu pimpin.</p>
+                                                Surat ini diterbitkan sebagai pengantar/keterangan resmi dari sekolah kami yang ditujukan kepada instansi yang Bapak/Ibu pimpin.
+                                            </p>
                                             <p className="indent-8">
-                                                Demikian surat ini kami sampaikan, atas perhatian dan kerjasama Bapak/Ibu, kami ucapkan terima kasih.</p>
+                                                Demikian surat ini kami sampaikan, atas perhatian dan kerjasama Bapak/Ibu, kami ucapkan terima kasih.
+                                            </p>
                                             <p className="mt-4"><i>Wassalamu'alaikum Warahmatullahi Wabarakatuh.</i></p>
                                         </div>
 
@@ -1230,8 +1071,7 @@
                                         ) : (
                                             <>
                                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Kategori Surat</label>
-                                                    <select name="category" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} className="w-full border p-2 rounded">
-                                                        <option>Surat Terima Siswa</option>
+                                                    <select name="category" className="w-full border p-2 rounded">
                                                         <option>Surat Mutasi Siswa</option>
                                                         <option>Surat Keterangan Aktif</option>
                                                         <option>Surat Kelakuan Baik</option>
@@ -1240,33 +1080,9 @@
                                                         <option>Surat Dinas</option>
                                                     </select>
                                                 </div>
-                                                
-                                                {/* Kondisional Input Siswa */}
-                                                {['Surat Terima Siswa', 'Surat Mutasi Siswa', 'Surat Keterangan Aktif', 'Surat Kelakuan Baik', 'Surat Kelulusan'].includes(formCategory) && (
-                                                    <div className="space-y-2 p-3 bg-gray-50 rounded border">
-                                                        <p className="text-xs font-bold text-gray-600 uppercase">Data Siswa (Pilih untuk Sinkronisasi)</p>
-                                                        <select onChange={(e) => handleSelectStudent(e.target.value)} className="w-full border p-2 rounded text-sm mb-2 focus:ring-2 focus:ring-blue-500">
-                                                            <option value="">-- Pilih Siswa dari Database Induk --</option>
-                                                            {students.map(s => <option key={s.id} value={s.id}>{s.name} - {s.nis}</option>)}
-                                                        </select>
-                                                        <input type="text" name="studentName" placeholder="Nama Lengkap Siswa" required value={selectedStudent?.name || ''} onChange={(e) => setSelectedStudent({...selectedStudent, name: e.target.value})} className="w-full border p-2 rounded text-sm" />
-                                                        <input type="text" name="nisn" placeholder="NISN" required value={selectedStudent?.nisn || ''} onChange={(e) => setSelectedStudent({...selectedStudent, nisn: e.target.value})} className="w-full border p-2 rounded text-sm" />
-                                                        <div className="flex gap-2">
-                                                            <input type="text" name="pob" placeholder="Tempat Lahir" required value={selectedStudent?.pob || ''} onChange={(e) => setSelectedStudent({...selectedStudent, pob: e.target.value})} className="w-1/2 border p-2 rounded text-sm" />
-                                                            <input type="date" name="dob" required value={selectedStudent?.dob || ''} onChange={(e) => setSelectedStudent({...selectedStudent, dob: e.target.value})} className="w-1/2 border p-2 rounded text-sm" />
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Kondisional Input Guru */}
-                                                {formCategory === 'Surat Dinas' && (
-                                                    <div className="space-y-2 p-3 bg-gray-50 rounded border">
-                                                        <p className="text-xs font-bold text-gray-600 uppercase">Data Terkait</p>
-                                                        <input type="text" name="teacherName" placeholder="Nama Guru" required className="w-full border p-2 rounded text-sm" />
-                                                    </div>
-                                                )}
-
+                                                <div><label className="block text-xs font-medium text-gray-700 mb-1">Nomor Surat (Otomatis)</label><input type="text" readOnly placeholder="Otomatis (Misal: 002/SDIT-AN/VI/2026)" className="w-full border p-2 rounded bg-gray-100" /></div>
                                                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Tujuan / Penerima</label><input type="text" name="recipient" required className="w-full border p-2 rounded" /></div>
+                                                <div><label className="block text-xs font-medium text-gray-700 mb-1">Perihal</label><input type="text" name="subject" required className="w-full border p-2 rounded" /></div>
                                             </>
                                         )}
                                     </form>
@@ -1283,131 +1099,29 @@
         };
 
         // 7. PENGATURAN
-        const Pengaturan = ({ settings, setSettings, classes, setClasses, years, setYears, tpCp, setTpCp, showToast }) => {
-            const [activeSubTab, setActiveSubTab] = useState('umum');
-            const [selSubject, setSelSubject] = useState(allPossibleSubjects[0]);
-            const [selLevel, setSelLevel] = useState('Fase A (Kelas 1-2)');
-            const [newTp, setNewTp] = useState('');
-            const [newClassName, setNewClassName] = useState('');
-            const [newTeacherName, setNewTeacherName] = useState('');
-
+        const Pengaturan = ({ settings, setSettings, classes, setClasses, years, setYears, showToast }) => {
             const handleSettingChange = (e) => setSettings({...settings, [e.target.name]: e.target.value});
             
-            const addClass = () => {
-                if(!newClassName || !newTeacherName) return;
-                setClasses([...classes, { name: newClassName, teacher: newTeacherName }]);
-                setNewClassName('');
-                setNewTeacherName('');
-                showToast("Kelas berhasil ditambahkan");
-            };
-
-            const removeClass = (name) => {
-                setClasses(classes.filter(c => c.name !== name));
-            };
-            
-            const addTp = () => {
-                if(!newTp) return;
-                const currentSubs = tpCp[selSubject] || {};
-                const currentLevelTps = currentSubs[selLevel] || [];
-                
-                setTpCp({
-                    ...tpCp, 
-                    [selSubject]: { 
-                        ...currentSubs, 
-                        [selLevel]: [...currentLevelTps, newTp] 
-                    }
-                });
-                setNewTp('');
-                showToast("TP/CP berhasil ditambahkan");
-            };
-
-            const removeTp = (index) => {
-                const currentSubs = tpCp[selSubject] || {};
-                const updated = currentSubs[selLevel].filter((_, i) => i !== index);
-                setTpCp({
-                    ...tpCp, 
-                    [selSubject]: { 
-                        ...currentSubs, 
-                        [selLevel]: updated 
-                    }
-                });
-            };
-
             return (
-                <div className="h-full overflow-y-auto pb-10 space-y-6">
-                    <div className="flex border-b mb-6">
-                        <button className={`py-2 px-4 ${activeSubTab === 'umum' ? 'border-b-2 border-green-600 font-bold' : ''}`} onClick={() => setActiveSubTab('umum')}>Pengaturan Umum</button>
-                        <button className={`py-2 px-4 ${activeSubTab === 'tpcp' ? 'border-b-2 border-green-600 font-bold' : ''}`} onClick={() => setActiveSubTab('tpcp')}>Pengaturan TP & CP</button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full overflow-y-auto pb-10">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Informasi Sekolah</h3>
+                        <div className="space-y-4">
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Sekolah</label><input name="kepalaSekolah" value={settings.kepalaSekolah} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">NIP Kepala Sekolah</label><input name="nipKepsek" value={settings.nipKepsek} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Tanggal Cetak Dokumen (Default)</h3>
+                        <div className="space-y-4">
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Rapor</label><input type="date" name="tglRapor" value={settings.tglRapor} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Transkrip</label><input type="date" name="tglTranskrip" value={settings.tglTranskrip} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Surat Keluar</label><input type="date" name="tglSurat" value={settings.tglSurat} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
+                        </div>
                     </div>
 
-                    {activeSubTab === 'umum' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Informasi Sekolah</h3>
-                                <div className="space-y-4">
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Sekolah</label><input name="kepalaSekolah" value={settings.kepalaSekolah} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">NIP Kepala Sekolah</label><input name="nipKepsek" value={settings.nipKepsek} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Tanggal Cetak Dokumen</h3>
-                                <div className="space-y-4">
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Rapor</label><input type="date" name="tglRapor" value={settings.tglRapor} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Transkrip</label><input type="date" name="tglTranskrip" value={settings.tglTranskrip} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Cetak Ijazah</label><input type="date" name="tglIjazah" value={settings.tglIjazah} onChange={handleSettingChange} className="w-full border p-2 rounded" /></div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2">
-                                <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Manajemen Rombel & Wali Kelas</h3>
-                                <div className="flex gap-2 mb-4">
-                                    <input value={newClassName} onChange={e => setNewClassName(e.target.value)} placeholder="Kelas (e.g. 1A)" className="w-1/3 border p-2 rounded text-sm" />
-                                    <input value={newTeacherName} onChange={e => setNewTeacherName(e.target.value)} placeholder="Nama Wali Kelas" className="flex-1 border p-2 rounded text-sm" />
-                                    <button onClick={addClass} className="bg-green-600 text-white px-3 py-2 rounded text-sm"><i className="fa-solid fa-plus"></i></button>
-                                </div>
-                                <div className="space-y-2 h-40 overflow-y-auto">
-                                    {classes.map(c => (
-                                        <div key={c.name} className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
-                                            <span><strong>{c.name}</strong> - {c.teacher}</span>
-                                            <button onClick={() => removeClass(c.name)} className="text-red-500 hover:text-red-700"><i className="fa-solid fa-trash"></i></button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeSubTab === 'tpcp' && (
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h3 className="font-bold text-gray-800 mb-4">Pengelolaan TP & CP Mata Pelajaran</h3>
-                            <div className="flex flex-wrap gap-4 mb-6">
-                                <select className="border p-2 rounded w-48" value={selSubject} onChange={e => setSelSubject(e.target.value)}>
-                                    {allPossibleSubjects.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                                </select>
-                                <select className="border p-2 rounded w-48" value={selLevel} onChange={e => setSelLevel(e.target.value)}>
-                                    <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
-                                    <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
-                                    <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
-                                </select>
-                                <div className="flex-1 flex gap-2">
-                                    <input value={newTp} onChange={e => setNewTp(e.target.value)} placeholder="Tambah TP baru..." className="flex-1 border p-2 rounded" />
-                                    <button onClick={addTp} className="bg-green-600 text-white px-4 py-2 rounded font-medium hover:bg-green-700">Tambah</button>
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                {(tpCp[selSubject]?.[selLevel] || []).map((item, index) => (
-                                    <div key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded border">
-                                        <span>{index + 1}. {item}</span>
-                                        <button onClick={() => removeTp(index)} className="text-red-600 hover:bg-red-50 p-2 rounded"><i className="fa-solid fa-trash"></i></button>
-                                    </div>
-                                ))}
-                                {(tpCp[selSubject]?.[selLevel] || []).length === 0 && <p className="text-gray-500 italic">Belum ada TP/CP untuk {selSubject} pada {selLevel}.</p>}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-end">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 flex justify-end">
                         <button onClick={() => showToast("Pengaturan berhasil disimpan")} className="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 font-medium">Simpan Perubahan</button>
                     </div>
                 </div>
